@@ -43,7 +43,7 @@
 
     <script>
         // Substitua SEU_USUARIO e SEU_REPOSITORIO pelos dados reais do seu GitHub
-        const URL_JSON = "https://raw.githubusercontent.com/bernard17costa/personal_library/refs/heads/main/livros.json?token=GHSAT0AAAAAAELBMNYTZRKJK6DLTWBX4QRQ2WSMVRA";
+        const URL_JSON = "https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPOSITORIO/main/livros.json";
 
         let listaLivros = [];
 
@@ -53,6 +53,14 @@
                 if (!response.ok) throw new Error("Erro ao carregar os dados.");
                 
                 listaLivros = await response.json();
+
+                // Ordena alfabeticamente por autor (tratando vazios para irem ao fim)
+                listaLivros.sort((a, b) => {
+                    const autorA = (a.autor || "").toLowerCase();
+                    const autorB = (b.autor || "").toLowerCase();
+                    return autorA.localeCompare(autorB, 'pt-BR');
+                });
+
                 exibirLivros(listaLivros);
             } catch (error) {
                 console.error(error);
@@ -96,7 +104,7 @@
                         ${livro.titulo || "<span class='text-amber-600 italic'>Aguardando atualização...</span>"}
                         ${tituloOriginalHtml}
                     </td>
-                    <td class="p-3 text-gray-600">
+                    <td class="p-3 text-gray-600 font-medium">
                         ${livro.autor || "-"}
                         ${tradutorHtml}
                     </td>
@@ -110,7 +118,7 @@
             });
         }
 
-        // Funcionalidade de busca em tempo real
+        // Funcionalidade de busca em tempo real (mantém a ordenação por autor nos resultados filtrados se quiser, ou filtra mantendo)
         document.getElementById("searchInput").addEventListener("input", (e) => {
             const termo = e.target.value.toLowerCase();
             const filtrados = listaLivros.filter(livro => 
