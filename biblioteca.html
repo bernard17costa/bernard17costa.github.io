@@ -59,7 +59,7 @@
                 
                 listaLivros = await response.json();
 
-                // Ordena alfabeticamente por autor (tratando vazios para irem ao fim)
+                // Ordena alfabeticamente por autor
                 listaLivros.sort((a, b) => {
                     const autorA = (a.autor || "").toLowerCase();
                     const autorB = (b.autor || "").toLowerCase();
@@ -72,14 +72,25 @@
                 document.getElementById("tabela-livros").innerHTML = `
                     <tr><td colspan="8" class="text-center p-6 text-red-500">Erro ao carregar a base de dados. Verifique o link e se o arquivo livros.json é público.</td></tr>
                 `;
+                document.getElementById("contador-livros").innerText = "Erro ao carregar contagem.";
             }
         }
 
         function exibirLivros(livros) {
             const tbody = document.getElementById("tabela-livros");
+            const contadorEl = document.getElementById("contador-livros");
+            
             tbody.innerHTML = "";
 
-            if (livros.length === 0) {
+            // Atualiza o contador de livros na tela
+            const total = livros.length;
+            if (total === 1) {
+                contadorEl.innerText = "1 livro cadastrado";
+            } else {
+                contadorEl.innerText = `${total} livros cadastrados`;
+            }
+
+            if (total === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" class="text-center p-6 text-gray-500">Nenhum livro encontrado.</td></tr>`;
                 return;
             }
@@ -93,7 +104,7 @@
                     ? `<img src="${livro.capa}" alt="Capa" class="w-12 h-16 object-cover rounded shadow">` 
                     : `<div class="w-12 h-16 bg-gray-200 flex items-center justify-center text-[10px] text-gray-400 rounded text-center p-1">Sem capa</div>`;
 
-                // Subtextos organizados para a nova estrutura
+                // Subtextos organizados para a estrutura
                 const tituloOriginalHtml = livro["titulo original"] ? `<br><span class="text-xs text-gray-400 italic">Orig: ${livro["titulo original"]}</span>` : "";
                 const tradutorHtml = livro.tradutor ? `<br><span class="text-xs text-gray-400">Trad: ${livro.tradutor}</span>` : "";
                 
@@ -123,7 +134,7 @@
             });
         }
 
-        // Funcionalidade de busca em tempo real (mantém a ordenação por autor nos resultados filtrados se quiser, ou filtra mantendo)
+        // Funcionalidade de busca em tempo real com atualização dinâmica do contador
         document.getElementById("searchInput").addEventListener("input", (e) => {
             const termo = e.target.value.toLowerCase();
             const filtrados = listaLivros.filter(livro => 
